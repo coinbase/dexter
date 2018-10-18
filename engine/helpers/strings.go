@@ -10,7 +10,7 @@ import (
 // Return a new randomly generated ID for a Dexter investigation
 //
 func NewDexterID() string {
-	return uuid.Must(uuid.NewV4()).String()[0:8]
+	return uuid.NewV4().String()[0:8]
 }
 
 //
