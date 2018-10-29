@@ -1,5 +1,7 @@
 # Dexter
 
+[![CircleCI](https://circleci.com/gh/coinbase/dexter/tree/master.svg?style=svg)](https://circleci.com/gh/coinbase/dexter/tree/master)
+
 Your friendly forensics expert.
 
 Dexter is a forensics acquisition framework designed to be extensible and secure.
