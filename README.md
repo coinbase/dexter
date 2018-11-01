@@ -20,9 +20,9 @@ Dexter runs as an agent backed by S3.  Investigators use Dexter on the command l
 
 You must have go installed.  Please follow the [installation instructions](https://golang.org/doc/install) or use a alternative method such that you can successfully run `go` and have a properly setup `$GOPATH` defined in your environment.
 
-#### dep, fileb0x
+#### dep
 
-Install the [dep](https://github.com/golang/dep) package manager, install the tool [fileb0x](https://github.com/UnnoTed/fileb0x).
+Install the [dep](https://github.com/golang/dep) package manager.
 
 ### Download the repository
 
@@ -54,17 +54,29 @@ make test
 
 ### Install
 
-Before building and installing, you are probably going to want to setup your configuration file correctly.
+Dexter can be installed with:
 
-#### The configuration file
+```
+make install
+```
 
-Open up and edit [`config/dexter.json`](config/dexter.json).
+On linux, a bash completion script can be installed with `make bash`.
 
-* The `ProjectName` key tells Dexter daemons how to look up the project name of the host Dexter is running on.  This is useful for facts that check the project name.  The `Type` can either be `envar`, in which case the `Location` is the name of the envar containing the project name, or `file`, in which case the `Location` is a path.
-* The `ConsensusRequirements` key describes the required number of approvals for each task.  An investigation will be need to be approved by the number of approvals required by the highest task that is included.
-* The `OSQuerySocket` defines the path to the unix socket osquery is listening on.
-* The `S3Bucket` is the name of the bucket Dexter will interact with.  This configuration option can be overridden by setting the `DEXTER_AWS_S3_BUCKET` environment variable.
-* `PollIntervalSeconds` defines the frequency with which Dexter daemons will poll the S3 bucket.
+Dexter will need to be configured before it can be used.
+
+#### Environment variables
+
+Dexter is configured with the following environment variables.  Some are only required when Dexter is running as a daemon, others are required both when acting as a daemon as well as a command line client.
+
+|Envar|Use|Daemon|Client|
+|---|---|:---:|:---:|
+|`DEXTER_AWS_S3_BUCKET`|The S3 bucket Dexter will use|✓|✓|
+|`DEXTER_POLL_INTERVAL_SECONDS`|The number of seconds in between Dexter S3 polls|✓||
+|`DEXTER_PROJECT_NAME_CONFIG`|Instructs Dexter on how to look up a local host's project name.  Contents must being with `file://`, followed by a local path, or `envar://`, followed by an envar name.|✓||
+|`DEXTER_OSQUERY_SOCKET`|Path to the local osquery socket|✓||
+|`DEXTER_AWS_ACCESS_KEY_ID`|AWS access key, used to override `AWS_ACCESS_KEY_ID`.  If not set, `AWS_ACCESS_KEY_ID` will be used instead.|✓|✓|
+|`DEXTER_AWS_SECRET_ACCESS_KEY`|AWS access key, used to override `AWS_SECRET_ACCESS_KEY`.  If not set, `AWS_SECRET_ACCESS_KEY` will be used instead.|✓|✓|
+|`DEXTER_AWS_REGION`|AWS access key, used to override `AWS_REGION`.  If not set, `AWS_REGION` will be used instead.|✓|✓|
 
 #### Amazon S3 access
 
@@ -79,6 +91,8 @@ Dexter daemons will need to the following aws permissions to use the S3 bucket:
 * `ListBucket` on the entire bucket
 * `GetObject` on `investigations`
 * `GetObject` on `investigations/*`
+* `GetObject` on `investigators`
+* `GetObject` on `investigators/*`
 * `PutObject` on `reports/*`
 * `PutObjectAcl` on `reports/*`
 
@@ -90,6 +104,8 @@ Investigators will require the following permissions to use Dexter:
 * `ListBucket` on the entire bucket
 * `PutObject` on `investigations/*`
 * `PutObjectAcl` on `investigation/*`
+* `PutObject` on `investigators/*`
+* `PutObjectAcl` on `investigators/*`
 
 ##### Admins
 
@@ -98,14 +114,6 @@ Dexter admins should have all the permissions of investigators, as well as the f
 * `DeleteObject` on the entire bucket
 
 This makes it possible for admins to prune old investigations and reports.
-
-#### Installing
-
-```
-make install
-```
-
-On linux, a bash completion script can be installed with `make bash`.
 
 ## Usage
 

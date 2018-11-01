@@ -19,9 +19,10 @@ import (
 
 func init() {
 	add(Task{
-		Name:           "docker-filesystem-diff",
-		Description:    "collect artifacts and a report on all changes to docker container filesystems",
-		actionFunction: exportContainerFilesystemDiffReport,
+		Name:                 "docker-filesystem-diff",
+		Description:          "collect artifacts and a report on all changes to docker container filesystems",
+		ConsensusRequirement: 1,
+		actionFunction:       exportContainerFilesystemDiffReport,
 	})
 }
 
