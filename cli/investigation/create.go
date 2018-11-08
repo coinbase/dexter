@@ -288,7 +288,7 @@ func unorder(tasks orderedSelectionWithArgs) selectionWithArgs {
 func collectTask() (string, []string) {
 	selections := []prompt.Suggest{}
 	for k, v := range tasks.Tasks {
-		if k == "example-task" || k == "revoke-key" {
+		if k == "example-task" {
 			continue
 		}
 		selections = append(selections, prompt.Suggest{Text: k, Description: v.Description})

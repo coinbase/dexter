@@ -227,18 +227,18 @@ func (investigation *Investigation) consensusRequirementsMet() bool {
 // this investigation.
 //
 func (investigation *Investigation) MinimumConsensus() int {
-	consensusConfig := helpers.ConsensusSet()
 	required := 1
-	for task, _ := range investigation.TaskList {
-		if amount, ok := consensusConfig[task]; ok {
-			if amount > required {
-				required = amount
-			}
-		} else {
+	for taskName, _ := range investigation.TaskList {
+		task, ok := tasks.Tasks[taskName]
+		if !ok {
 			log.WithFields(log.Fields{
-				"at":   "engine.MinimumConsensus",
-				"task": task,
-			}).Error("task does not have configured consensus requirements")
+				"at":        "engine.MinimumConsensus",
+				"task_name": taskName,
+			}).Error("named task not found")
+			continue
+		}
+		if task.ConsensusRequirement > required {
+			required = task.ConsensusRequirement
 		}
 	}
 	return required

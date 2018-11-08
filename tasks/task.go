@@ -21,10 +21,11 @@ import (
 // A Task defines something Dexter can do on a host.
 //
 type Task struct {
-	Name               string
-	Description        string
-	MinimumArguments   int
-	supportedPlatforms []string
+	Name                 string
+	Description          string
+	MinimumArguments     int
+	ConsensusRequirement int
+	supportedPlatforms   []string
 	actionFunction
 }
 

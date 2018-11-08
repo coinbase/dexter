@@ -1,11 +1,14 @@
 package engine
 
 import (
+	"bytes"
+	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	log "github.com/Sirupsen/logrus"
-	"github.com/coinbase/dexter/embedded"
 	"github.com/coinbase/dexter/engine/helpers"
 	"github.com/fatih/color"
 	"io/ioutil"
@@ -27,6 +30,79 @@ type PublicKey struct {
 type Investigator struct {
 	PublicKey PublicKey
 	Name      string
+}
+
+//
+// Create a new investigator object and the encrypted private key PEM block
+//
+func NewInvestigator(name, password string) (Investigator, []byte, error) {
+	privateKeyPEM, publicKey, err := generateInvestigatorKeys(password)
+	if err != nil {
+		return Investigator{}, []byte{}, err
+	}
+	return Investigator{
+		Name: name,
+		PublicKey: PublicKey{
+			N: publicKey.N.String(),
+			E: strconv.Itoa(publicKey.E),
+		},
+	}, privateKeyPEM, nil
+}
+
+//
+// Serialize the investigation into JSON
+//
+func (investigator Investigator) String() ([]byte, error) {
+	return json.MarshalIndent(investigator, "", "  ")
+}
+
+//
+// Upload the investigator to S3
+//
+func (investigator Investigator) Upload() error {
+	data, err := json.MarshalIndent(investigator, "", "  ")
+	if err != nil {
+		return errors.New("fatal error encoding investigator definition: " + err.Error())
+	}
+
+	// Upload the investigator public key into the S3 directory
+	err = helpers.UploadS3File("investigators/"+investigator.Name+".json", bytes.NewReader(data))
+	if err != nil {
+		errors.New("fatal error uploading new investigator: " + err.Error())
+	}
+	return nil
+}
+
+//
+// Generate the keys for an investigator
+//
+func generateInvestigatorKeys(password string) ([]byte, *rsa.PublicKey, error) {
+	// Generate new RSA key
+	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	if err != nil {
+		return []byte{}, nil, errors.New("fatal error generating RSA keys: " + err.Error())
+	}
+
+	// Encode private key as password-protected PEM file
+	privateBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	if err != nil {
+		return []byte{}, nil, errors.New("fatal error encoding RSA private key: " + err.Error())
+	}
+	pemBlock, err := x509.EncryptPEMBlock(rand.Reader, "ENCRYPTED PRIVATE KEY", privateBytes, []byte(password), x509.PEMCipherAES128)
+	if err != nil {
+		return []byte{}, nil, errors.New("fatal error PEM encoding RSA private key: " + err.Error())
+	}
+	blockBuffer := bytes.NewBuffer([]byte{})
+	err = pem.Encode(blockBuffer, pemBlock)
+	if err != nil {
+		return []byte{}, nil, errors.New("fatal error PEM encoding RSA private key: " + err.Error())
+	}
+	privateKeyFileData := blockBuffer.Bytes()
+
+	// Generate the public key
+	publicKey := privateKey.Public().(*rsa.PublicKey)
+
+	return privateKeyFileData, publicKey, nil
 }
 
 //
@@ -111,21 +187,22 @@ func LocalInvestigatorName() string {
 // return a slice of investigators.
 //
 func LoadInvestigators() (list []Investigator) {
-	investigatorList, err := embedded.WalkDirs("investigators", true)
+	investigatorFiles, err := helpers.ListS3Path("investigators/")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"at":    "engine.LoadInvestigators",
 			"error": err.Error(),
-		}).Fatal("unable to walk embedded investigator list")
+		}).Error("unable to list investigators")
+		return []Investigator{}
 	}
-	for _, filename := range investigatorList {
-		investigatorJSON, err := embedded.ReadFile(filename)
+	for _, filename := range investigatorFiles {
+		investigatorJSON, err := helpers.GetS3File(filename)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"at":    "engine.LoadInvestigators",
 				"error": err.Error(),
 				"name":  filename,
-			}).Error("unable to read investigator file data")
+			}).Error("unable to get investigator file data")
 			continue
 		}
 		person := Investigator{}

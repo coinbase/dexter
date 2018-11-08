@@ -22,6 +22,9 @@ func init() {
 		// a minimum number of arguments here.  Omit this if 0 arguments are ok.
 		MinimumArguments: 0,
 
+		// Define how many investigators need to sign an investigation containing this task
+		ConsensusRequirement: 1,
+
 		// supportedPlatforms contains valid values for go's runtime.GOOS
 		// If this is omitted, the default value is all platforms.
 		//

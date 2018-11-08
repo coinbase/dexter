@@ -324,8 +324,6 @@
     "context/ctxhttp",
     "internal/socks",
     "proxy",
-    "webdav",
-    "webdav/internal/xml",
   ]
   pruneopts = ""
   revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
@@ -373,8 +371,6 @@
     "github.com/stretchr/testify/assert",
     "golang.org/x/crypto/argon2",
     "golang.org/x/crypto/ssh/terminal",
-    "golang.org/x/net/context",
-    "golang.org/x/net/webdav",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

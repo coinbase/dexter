@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,7 +27,7 @@ func BuildDemoPath() {
 	if LocalDemoPath == "" {
 		return
 	}
-	if string(LocalDemoPath[len(LocalDemoPath)-1]) != "/" {
+	if !strings.HasSuffix(LocalDemoPath, "/") {
 		LocalDemoPath = LocalDemoPath + "/"
 	}
 	err := os.MkdirAll(filepath.FromSlash(LocalDemoPath), 0777)
@@ -49,6 +50,13 @@ func BuildDemoPath() {
 			"at":    "helpers.BuildDemoPath",
 			"error": err.Error(),
 		}).Fatal("unable to build local demo path reports directory")
+	}
+	err = os.MkdirAll(filepath.FromSlash(LocalDemoPath+"investigators"), 0777)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"at":    "helpers.BuildDemoPath",
+			"error": err.Error(),
+		}).Fatal("unable to build local demo path investigators directory")
 	}
 }
 

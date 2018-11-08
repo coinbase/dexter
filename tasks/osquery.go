@@ -13,10 +13,11 @@ import (
 
 func init() {
 	add(Task{
-		Name:             "osquery-collect",
-		Description:      "collect all data from all tables in osquery",
-		MinimumArguments: 0,
-		actionFunction:   collectOSQuery,
+		Name:                 "osquery-collect",
+		Description:          "collect all data from all tables in osquery",
+		MinimumArguments:     0,
+		ConsensusRequirement: 1,
+		actionFunction:       collectOSQuery,
 	})
 }
 
