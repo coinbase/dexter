@@ -41,7 +41,7 @@ func PollInterval() int {
 		return pollInterval
 	}
 
-	envarName := "DEXTER_POLL_INERVAL_SECONDS"
+	envarName := "DEXTER_POLL_INTERVAL_SECONDS"
 	intervalStr := os.Getenv(envarName)
 	if intervalStr == "" {
 		log.WithFields(log.Fields{
