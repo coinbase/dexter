@@ -7,5 +7,7 @@ jobs:
     steps:
       - checkout
       - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      - run: dep ensure
+      - run:
+          command: dep ensure
+          no_output_timeout: 10m
       - run: make test
