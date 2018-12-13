@@ -41,15 +41,15 @@ var diffName = map[containerDiffType]string{
 }
 
 type containerFilesystemChange struct {
-	changeType string
-	diffType   containerDiffType `json:"-"`
-	path       string
-	pathStat   types.ContainerPathStat
+	ChangeType string
+	DiffType   containerDiffType `json:"-"`
+	Path       string
+	PathStat   types.ContainerPathStat
 }
 
 type containerChangeSet struct {
-	container types.Container
-	changes   []containerFilesystemChange
+	Container types.Container
+	Changes   []containerFilesystemChange
 }
 
 func exportContainerFilesystemDiffReport(_ []string, writer *ArtifactWriter) {
@@ -79,8 +79,8 @@ func exportContainerFilesystemDiffReport(_ []string, writer *ArtifactWriter) {
 }
 
 func containsRemovedOrAdded(report containerChangeSet) bool {
-	for _, change := range report.changes {
-		switch change.diffType {
+	for _, change := range report.Changes {
+		switch change.DiffType {
 		case containerDiffRemoved:
 			return true
 		case containerDiffModified:
@@ -98,27 +98,27 @@ func zipChanges(writer *ArtifactWriter, report containerChangeSet) {
 	tmpContainer := ""
 	if containsRemovedOrAdded(report) {
 		var err error
-		tmpContainer, err = startOriginalContainer(writer, docker.API(), report.container.Image)
+		tmpContainer, err = startOriginalContainer(writer, docker.API(), report.Container.Image)
 		if err != nil {
 			errstr := "error starting original container for image"
 			log.WithFields(log.Fields{
 				"at":    "actions.zipChanges",
 				"error": err.Error(),
-				"image": report.container.Image,
+				"image": report.Container.Image,
 			}).Error(errstr)
-			writer.Error(errstr + " (" + report.container.Image + ") : " + err.Error())
+			writer.Error(errstr + " (" + report.Container.Image + ") : " + err.Error())
 		}
 	}
 
 	// Extract all added/removed/modified files from container
-	for _, change := range report.changes {
-		switch change.diffType {
+	for _, change := range report.Changes {
+		switch change.DiffType {
 		case containerDiffAdded:
-			writeAddedFile(writer, report.container.ID, change)
+			writeAddedFile(writer, report.Container.ID, change)
 		case containerDiffRemoved:
-			writeRemovedFile(writer, report.container.ID, tmpContainer, change)
+			writeRemovedFile(writer, report.Container.ID, tmpContainer, change)
 		case containerDiffModified:
-			writeModifiedFile(writer, report.container.ID, tmpContainer, change)
+			writeModifiedFile(writer, report.Container.ID, tmpContainer, change)
 		}
 	}
 
@@ -129,65 +129,65 @@ func zipChanges(writer *ArtifactWriter, report containerChangeSet) {
 }
 
 func writeAddedFile(writer *ArtifactWriter, container string, change containerFilesystemChange) {
-	data, err := extractFile(writer, docker.API(), change.path, container)
+	data, err := extractFile(writer, docker.API(), change.Path, container)
 	if err != nil {
 		errstr := "error extracting file from container"
 		log.WithFields(log.Fields{
 			"at":        "actions.writeAddedFile",
 			"error":     err.Error(),
-			"path":      change.path,
+			"path":      change.Path,
 			"container": container,
 		}).Error(errstr)
-		writer.Error(errstr + " (" + container + " " + change.path + ") :" + err.Error())
+		writer.Error(errstr + " (" + container + " " + change.Path + ") :" + err.Error())
 		return
 	}
-	writer.Write(container+"/added"+change.path, data)
+	writer.Write(container+"/added"+change.Path, data)
 }
 
 func writeRemovedFile(writer *ArtifactWriter, container, tmpContainer string, change containerFilesystemChange) {
-	data, err := extractFile(writer, docker.API(), change.path, tmpContainer)
+	data, err := extractFile(writer, docker.API(), change.Path, tmpContainer)
 	if err != nil {
 		errstr := "error extracting file from container"
 		log.WithFields(log.Fields{
 			"at":        "actions.writeRemovedFile",
 			"error":     err.Error(),
-			"path":      change.path,
+			"path":      change.Path,
 			"container": container,
 		}).Error(errstr)
-		writer.Error(errstr + " (" + container + " " + change.path + ") :" + err.Error())
+		writer.Error(errstr + " (" + container + " " + change.Path + ") :" + err.Error())
 		return
 	}
-	writer.Write(container+"/removed"+change.path, data)
+	writer.Write(container+"/removed"+change.Path, data)
 }
 
 func writeModifiedFile(writer *ArtifactWriter, container, tmpContainer string, change containerFilesystemChange) {
 	// Extract modified file
-	mdata, err := extractFile(writer, docker.API(), change.path, container)
+	mdata, err := extractFile(writer, docker.API(), change.Path, container)
 	if err != nil {
 		errstr := "error extracting modified file from container"
 		log.WithFields(log.Fields{
 			"at":        "actions.writeModifiedFile",
 			"error":     err.Error(),
-			"path":      change.path,
+			"path":      change.Path,
 			"container": container,
 		}).Error(errstr)
-		writer.Error(errstr + " (" + container + " " + change.path + ") :" + err.Error())
+		writer.Error(errstr + " (" + container + " " + change.Path + ") :" + err.Error())
 	} else {
-		writer.Write(container+"/modified"+change.path, mdata)
+		writer.Write(container+"/modified"+change.Path, mdata)
 	}
 	// Extract original file
-	odata, err := extractFile(writer, docker.API(), change.path, tmpContainer)
+	odata, err := extractFile(writer, docker.API(), change.Path, tmpContainer)
 	if err != nil {
 		errstr := "error extracting original file from container"
 		log.WithFields(log.Fields{
 			"at":        "actions.writeModifiedFile",
 			"error":     err.Error(),
-			"path":      change.path,
+			"path":      change.Path,
 			"container": container,
 		}).Error(errstr)
-		writer.Error(errstr + " (" + container + " " + change.path + ") :" + err.Error())
+		writer.Error(errstr + " (" + container + " " + change.Path + ") :" + err.Error())
 	} else {
-		writer.Write(container+"/modified"+change.path+".original", odata)
+		writer.Write(container+"/modified"+change.Path+".original", odata)
 	}
 }
 
@@ -279,7 +279,7 @@ func startOriginalContainer(writer *ArtifactWriter, cli *client.Client, image st
 }
 
 func writeContainerManifest(writer *ArtifactWriter, report containerChangeSet) {
-	manifestFile := report.container.ID + "/manifest.json"
+	manifestFile := report.Container.ID + "/manifest.json"
 	manifestData, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		errstr := "error creating container diff manifest"
@@ -306,7 +306,7 @@ func containerDiff(writer *ArtifactWriter, cli *client.Client, container types.C
 		return
 	}
 
-	changeSet.container = container
+	changeSet.Container = container
 
 	for _, response := range responses {
 		pathStat, serr := cli.ContainerStatPath(context.Background(), container.ID, response.Path)
@@ -330,11 +330,11 @@ func containerDiff(writer *ArtifactWriter, cli *client.Client, container types.C
 			continue
 		}
 
-		changeSet.changes = append(changeSet.changes, containerFilesystemChange{
-			changeType: diffName[containerDiffType(response.Kind)],
-			diffType:   containerDiffType(response.Kind),
-			path:       response.Path,
-			pathStat:   pathStat,
+		changeSet.Changes = append(changeSet.Changes, containerFilesystemChange{
+			ChangeType: diffName[containerDiffType(response.Kind)],
+			DiffType:   containerDiffType(response.Kind),
+			Path:       response.Path,
+			PathStat:   pathStat,
 		})
 	}
 	return

@@ -1,4 +1,2 @@
----
-heimdall:
+secure:
   required_reviews: 1
-  requires_mfa: false
