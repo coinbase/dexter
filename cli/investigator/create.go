@@ -1,6 +1,7 @@
 package investigator
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -22,12 +23,7 @@ func createInvestigator(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 	writePrivateKey(investigator, privateKeyPEM)
-	err = investigator.Upload()
-	if err != nil {
-		color.HiRed("Error uploading investigator: %s", err.Error())
-	} else {
-		color.HiGreen("Investigator setup complete, investigator is live")
-	}
+	writePublicKey(investigator)
 }
 
 func writePrivateKey(investigator engine.Investigator, privatePEM []byte) {
@@ -60,5 +56,25 @@ func writePrivateKey(investigator engine.Investigator, privatePEM []byte) {
 		color.HiRed("If you would like to replace your key, please remove this file.")
 		os.Exit(1)
 	}
-	ioutil.WriteFile(dexterKeyName, privatePEM, 0644)
+	err = ioutil.WriteFile(dexterKeyName, privatePEM, 0644)
+	if err != nil {
+		color.HiRed("fatal error writing investigator private key: " + err.Error())
+		os.Exit(1)
+	}
+}
+
+func writePublicKey(investigator engine.Investigator) {
+	data, err := json.MarshalIndent(investigator, "", "  ")
+	if err != nil {
+		color.HiRed("fatal error encoding investigator: " + err.Error())
+		os.Exit(1)
+	}
+
+	err = ioutil.WriteFile(investigator.Name+".json", data, 0644)
+	if err != nil {
+		color.HiRed("fatal error writing investigator file: " + err.Error())
+		os.Exit(1)
+	}
+	color.Green("New investigator file create: " + investigator.Name + ".json")
+	color.Yellow("This must be uploaded to Dexter by your Dexter administrator.")
 }

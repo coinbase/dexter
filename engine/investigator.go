@@ -57,23 +57,6 @@ func (investigator Investigator) String() ([]byte, error) {
 }
 
 //
-// Upload the investigator to S3
-//
-func (investigator Investigator) Upload() error {
-	data, err := json.MarshalIndent(investigator, "", "  ")
-	if err != nil {
-		return errors.New("fatal error encoding investigator definition: " + err.Error())
-	}
-
-	// Upload the investigator public key into the S3 directory
-	err = helpers.UploadS3File("investigators/"+investigator.Name+".json", bytes.NewReader(data))
-	if err != nil {
-		errors.New("fatal error uploading new investigator: " + err.Error())
-	}
-	return nil
-}
-
-//
 // Generate the keys for an investigator
 //
 func generateInvestigatorKeys(password string) ([]byte, *rsa.PublicKey, error) {
