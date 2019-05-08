@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 )
 
 var titleColor = color.New(color.FgHiGreen, color.Bold)
@@ -32,11 +31,11 @@ type orderedSelectionWithArgs map[int]selectionWithArgs
 func createInvestigation(cmd *cobra.Command, args []string) {
 	// Print an interesting welcome message
 	titleColor.Println(`      _           _
-     | |         | |           
-   __| | _____  _| |_ ___ _ __ 
+     | |         | |
+   __| | _____  _| |_ ___ _ __
   / _  |/ _ \ \/ / __/ _ \ '__|
- | (_| |  __/>  <| ||  __/ |   
-  \__,_|\___/_/\_\\__\___|_|   
+ | (_| |  __/>  <| ||  __/ |
+  \__,_|\___/_/\_\\__\___|_|
 
 `)
 
@@ -297,7 +296,7 @@ func collectTask() (string, []string) {
 	completer := func(d prompt.Document) []prompt.Suggest {
 		return prompt.FilterHasPrefix(selections, d.GetWordBeforeCursor(), true)
 	}
-	input := strings.Fields(prompt.Input("task [done] > ", completer))
+	input := cliutil.SplitArguments(prompt.Input("task [done] > ", completer))
 	if len(input) < 1 {
 		return "", []string{}
 	}
@@ -317,7 +316,7 @@ func collectFact() (string, []string) {
 	completer := func(d prompt.Document) []prompt.Suggest {
 		return prompt.FilterHasPrefix(selections, d.GetWordBeforeCursor(), true)
 	}
-	input := strings.Fields(prompt.Input("fact [done] > ", completer))
+	input := cliutil.SplitArguments(prompt.Input("fact [done] > ", completer))
 	if len(input) < 1 {
 		return "", []string{}
 	}

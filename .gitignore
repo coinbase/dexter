@@ -1,3 +1,4 @@
 dexter
 .*.sw?
 vendor/
+*.DS_Store

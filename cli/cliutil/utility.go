@@ -5,6 +5,7 @@ package cliutil
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"os"
 	"strconv"
@@ -166,4 +167,20 @@ func printSelectionList(orderedOptions map[int]string, selectedOptions []string)
 			fmt.Println(fmt.Sprintf("%d. [ ]\t%s", i, orderedOptions[i]))
 		}
 	}
+}
+
+//
+// SplitArguments takes a string of arguments and splits them respecting quoted whitespace
+//
+func SplitArguments(args string) []string {
+	if args == "" {
+		return []string{}
+	}
+	r := csv.NewReader(strings.NewReader(args))
+	r.Comma = ' '
+	record, err := r.Read()
+	if err != nil {
+		color.HiRed("error parsing arguments: " + err.Error())
+	}
+	return record
 }
