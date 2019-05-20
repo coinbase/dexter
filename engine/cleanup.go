@@ -9,7 +9,7 @@ import (
 
 	"github.com/coinbase/dexter/engine/helpers/docker"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/docker/docker/api/types"
 )
 

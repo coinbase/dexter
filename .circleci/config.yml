@@ -2,12 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.11
+        environment:
+          GO111MODULE: "on"
     working_directory: /go/src/github.com/coinbase/dexter
     steps:
       - checkout
-      - run: curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-      - run:
-          command: dep ensure
-          no_output_timeout: 10m
+      - run: go build
       - run: make test

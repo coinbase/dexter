@@ -8,7 +8,7 @@ package tasks
 import (
 	"github.com/coinbase/dexter/util"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"io/ioutil"
 	"os"

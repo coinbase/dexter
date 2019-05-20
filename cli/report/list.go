@@ -10,7 +10,7 @@ import (
 	"github.com/coinbase/dexter/engine/helpers"
 	"github.com/coinbase/dexter/util"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"

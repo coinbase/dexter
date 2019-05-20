@@ -77,7 +77,6 @@ func LoadLocalKey(passwordRetriever func() string) *rsa.PrivateKey {
 		keyCached = true
 		return privateKey
 	}
-	return nil
 }
 
 //
