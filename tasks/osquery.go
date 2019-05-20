@@ -3,7 +3,7 @@ package tasks
 import (
 	"github.com/coinbase/dexter/engine/helpers"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/kolide/osquery-go"
 
 	"encoding/json"

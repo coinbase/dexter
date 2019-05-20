@@ -75,6 +75,6 @@ func writePublicKey(investigator engine.Investigator) {
 		color.HiRed("fatal error writing investigator file: " + err.Error())
 		os.Exit(1)
 	}
-	color.Green("New investigator file create: " + investigator.Name + ".json")
+	color.Green("New investigator file created: " + investigator.Name + ".json")
 	color.Yellow("This must be uploaded to Dexter by your Dexter administrator.")
 }

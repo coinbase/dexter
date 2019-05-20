@@ -17,7 +17,7 @@ import (
 	"github.com/coinbase/dexter/engine"
 	"github.com/coinbase/dexter/engine/helpers"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

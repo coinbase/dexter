@@ -20,9 +20,7 @@ Dexter runs as an agent backed by S3.  Investigators use Dexter on the command l
 
 You must have go installed.  Please follow the [installation instructions](https://golang.org/doc/install) or use a alternative method such that you can successfully run `go` and have a properly setup `$GOPATH` defined in your environment.
 
-#### dep
-
-Install the [dep](https://github.com/golang/dep) package manager.
+Dexter uses Go modules, so you must `export GO111MODULE=on` in your environment.
 
 ### Download the repository
 
@@ -36,17 +34,7 @@ git clone github.com/coinbase/dexter
 cd dexter
 ```
 
-### Install dependencies
-
-Install dependencies into the vendor directory with dep.
-
-```
-dep ensure
-```
-
 ### Run tests
-
-The Makefile contains functionality to run all available tests without testing vendor.
 
 ```
 make test
@@ -88,7 +76,10 @@ Dexter usage can be divided into three roles: daemon, investigator, and admin.
 
 Dexter daemons will need to the following aws permissions to use the S3 bucket:
 
-* `ListBucket` on the entire bucket
+* `ListBucket` on `investigations`
+* `ListBucket` on `investigations/*`
+* `ListBucket` on `investigators`
+* `ListBucket` on `investigators/*`
 * `GetObject` on `investigations`
 * `GetObject` on `investigations/*`
 * `GetObject` on `investigators`
@@ -104,13 +95,13 @@ Investigators will require the following permissions to use Dexter:
 * `ListBucket` on the entire bucket
 * `PutObject` on `investigations/*`
 * `PutObjectAcl` on `investigation/*`
-* `PutObject` on `investigators/*`
-* `PutObjectAcl` on `investigators/*`
 
 ##### Admins
 
 Dexter admins should have all the permissions of investigators, as well as the following additional permissions:
 
+* `PutObject` on `investigators/*`
+* `PutObjectAcl` on `investigators/*`
 * `DeleteObject` on the entire bucket
 
 This makes it possible for admins to prune old investigations and reports.
@@ -121,37 +112,24 @@ Full documentation for dexter is auto-generated [here](doc/dexter.md).
 
 ### Setting up an investigator
 
-The command [`dexter investigator init`](doc/dexter_investigator_init.md) can be used to create a new investigator on a new system.
-
-Create the new investigator from within the Dexter repository, and make sure the `investigators` directory exists already.  You will set a new password which will be used when investigations are signed and reports are downloaded.
+The command [`dexter investigator init`](doc/dexter_investigator_init.md) can be used to create a new investigator on a new system.  You will set a new password which will be used when investigations are signed and reports are downloaded.
 
 ```
 $ ./dexter investigator init hayden
 Initializing new investigator "hayden" on local system...
 Set a new password >
 Confirm >
-hayden.json has been generated in the investigators directory,
-submit this change as a pull request.
+New investigator file created: hayden.json
+This must be uploaded to Dexter by your Dexter administrator.
 ``` 
 
-This will create a `~/.dexter` directory and place the investigator file in the investigators directory.
+A dexter admin can now place this file in the investigators directory of the S3 bucket.
 
-Now, re-create the embedded file and create a pull request
-
-```
-make embed
-git checkout -b new-investigator
-git add --all
-git commit -m "new investigator"
-```
-
-Once this updated version of dexter is deployed as a daemon, the new investigator will be active.
+This will create a `~/.dexter` directory locally containing your encrypted private key.
 
 ### Revoking investigators
 
-The command [`dexter investigator emergency-revoke`](doc/dexter_investigator_emergency-revoke.md) can be used to revoke a compromised investigator.
-
-This command issues an investigation with a single task: destroy the investigator's public key in all dexter daemons.  This will make it impossible for Dexter to create reports this investigator can read, and to validate investigations with the investigator's signature.  It also removes all currently generated reports that can be read by this investigator.  The investigator will need to be permanently removed by deleting their key from the `investigators` directory in Dexter and redeploying all instances of Dexter.
+The command [`dexter investigator emergency-revoke`](doc/dexter_investigator_emergency-revoke.md) can be used to revoke an investigator.
 
 ### Deploying the daemon
 

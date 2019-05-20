@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"errors"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/coinbase/dexter/engine/helpers"
 	"github.com/fatih/color"
 	"io/ioutil"

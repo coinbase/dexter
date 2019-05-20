@@ -102,8 +102,6 @@ func AskYesNo(str string, defaultTrue bool) bool {
 			fmt.Println("\"y\" or \"n\", please")
 		}
 	}
-
-	return false
 }
 
 //

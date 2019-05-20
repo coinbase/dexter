@@ -23,8 +23,8 @@ import (
 	"github.com/coinbase/dexter/facts"
 	"github.com/coinbase/dexter/tasks"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/fatih/color"
+	log "github.com/sirupsen/logrus"
 )
 
 //
@@ -81,7 +81,6 @@ func (payload DecryptionPayload) GetEncryptionKey(passwordFunc func() string) []
 			os.Exit(1)
 		}
 	}
-	return data
 }
 
 //
@@ -426,7 +425,7 @@ func (investigation Investigation) encrypt(user string) DecryptionPayload {
 	}
 
 	return DecryptionPayload{
-		Nonce: nonce,
+		Nonce:                      nonce,
 		EncryptedDataEncryptionKey: encryptedKey,
 	}
 }

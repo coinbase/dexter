@@ -30,14 +30,15 @@ type orderedSelectionWithArgs map[int]selectionWithArgs
 
 func createInvestigation(cmd *cobra.Command, args []string) {
 	// Print an interesting welcome message
-	titleColor.Println(`      _           _
+	welcomeMessage := `      _           _
      | |         | |
    __| | _____  _| |_ ___ _ __
   / _  |/ _ \ \/ / __/ _ \ '__|
  | (_| |  __/>  <| ||  __/ |
   \__,_|\___/_/\_\\__\___|_|
 
-`)
+`
+	titleColor.Println(welcomeMessage)
 
 	// Create a new investigation struct, interacting with the user where required for each field
 	id := helpers.NewDexterID()
@@ -91,7 +92,6 @@ func collectTasks() selectionWithArgs {
 			numberedTasks = addNewTask(task, args, numberedTasks)
 		}
 	}
-	return unorder(numberedTasks)
 }
 
 // Drop into a command line loop to collect tasks to include in this investigation
@@ -116,7 +116,6 @@ func collectFacts(salt string) selectionWithArgs {
 			numberedFacts = addNewFact(task, args, numberedFacts, salt)
 		}
 	}
-	return unorder(numberedFacts)
 }
 
 // Add a new fact to the current ordered list, printing any errors that make the selection invalid
