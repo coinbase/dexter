@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	log "github.com/sirupsen/logrus"
 )
 
 //
@@ -125,6 +125,7 @@ func UploadS3File(path string, data io.ReadSeeker) error {
 		return ioutil.WriteFile(LocalDemoPath+path, bytes, 0644)
 	}
 	_, err := s3.New(session.New()).PutObject(&s3.PutObjectInput{
+		ACL:                  aws.String(s3.ObjectCannedACLBucketOwnerFullControl),
 		Body:                 data,
 		Bucket:               S3Bucket(),
 		Key:                  aws.String(path),
