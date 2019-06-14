@@ -41,7 +41,14 @@ func listInvestigations(cmd *cobra.Command, args []string) {
 		tablewriter.Colors{tablewriter.FgHiYellowColor},
 	)
 
-	for _, inv := range engine.CurrentInvestigations() {
+	var list []engine.Investigation
+	if showArchived {
+		list = engine.AllInvestigations()
+	} else {
+		list = engine.CurrentInvestigations()
+	}
+
+	for _, inv := range list {
 		table.Append([]string{
 			inv.ID,
 			inv.Issuer.Name,

@@ -10,9 +10,9 @@ import (
 	"github.com/coinbase/dexter/engine/helpers"
 	"github.com/coinbase/dexter/util"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -56,7 +56,14 @@ func listReports(cmd *cobra.Command, args []string) {
 		tablewriter.Colors{tablewriter.FgHiYellowColor},
 	)
 
-	for _, rep := range CurrentReports() {
+	var list []Report
+	if showArchived {
+		list = AllReports()
+	} else {
+		list = CurrentReports()
+	}
+
+	for _, rep := range list {
 		table.Append([]string{
 			rep.ID,
 			rep.Investigation.Issuer.Name,
@@ -72,9 +79,24 @@ func listReports(cmd *cobra.Command, args []string) {
 }
 
 //
-// List all currently available reports.
+// Return all reports, including archived ones.
+//
+func AllReports() []Report {
+	return getReports(true)
+}
+
+//
+// Return all current reports.
 //
 func CurrentReports() []Report {
+	return getReports(false)
+}
+
+//
+// List all currently available reports.  Accepts a boolean to
+// determine if archived reports should be returned as well.
+//
+func getReports(archived bool) []Report {
 	allReportIDs := make([]string, 0)
 	reportedHosts := make(map[string][]string)
 	reportedUsers := make(map[string][]string)
@@ -87,6 +109,10 @@ func CurrentReports() []Report {
 	}
 	cachedInvestigations := engine.CurrentInvestigations()
 	for _, filename := range reportFiles {
+		reportFile := strings.TrimPrefix(filename, "reports/")
+		if string(reportFile[0]) == "_" && !archived {
+			continue
+		}
 		if !strings.HasSuffix(filename, ".zip.enc") {
 			continue
 		}
@@ -116,7 +142,7 @@ func CurrentReports() []Report {
 	for _, uuid := range allReportIDs {
 		investigation, err := engine.InvestigationByIDWithCache(cachedInvestigations, uuid)
 		if err != nil {
-			color.HiRed("Error loading investigation for report " + uuid + ", investigation was probably pruned: " + err.Error())
+			color.HiRed("Error loading investigation for report " + uuid + ", investigation was probably archived: " + err.Error())
 		}
 		reports = append(reports, Report{
 			ID:                 uuid,

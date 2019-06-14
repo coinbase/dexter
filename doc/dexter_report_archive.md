@@ -1,20 +1,19 @@
-## dexter report list
+## dexter report archive
 
-List Dexter reports
+Archive all reports
 
 ### Synopsis
 
-Print a list of dexter reports that are available for download.
+Mark reports as archived, removing them from the Dexter cli while preserving them in S3
 
 ```
-dexter report list [flags]
+dexter report archive [flags]
 ```
 
 ### Options
 
 ```
-      --archived   show archived reports
-  -h, --help       help for list
+  -h, --help   help for archive
 ```
 
 ### Options inherited from parent commands

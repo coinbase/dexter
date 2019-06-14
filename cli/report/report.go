@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var showArchived bool
+
 var cmd = &cobra.Command{
 	Use:   "report [cmd]",
 	Short: "Manage reports",
@@ -22,12 +24,12 @@ var listCmd = &cobra.Command{
 	Run:   listReports,
 }
 
-var pruneCmd = &cobra.Command{
-	Use:   "prune",
-	Short: "Delete all report files",
-	Long:  `Delete all report files`,
+var archiveCmd = &cobra.Command{
+	Use:   "archive",
+	Short: "Archive all reports",
+	Long:  `Mark reports as archived, removing them from the Dexter cli while preserving them in S3`,
 	Args:  cobra.MaximumNArgs(0),
-	Run:   pruneReports,
+	Run:   archiveReports,
 }
 
 var retrieveCmd = &cobra.Command{
@@ -39,8 +41,10 @@ var retrieveCmd = &cobra.Command{
 }
 
 func CommandSuite() *cobra.Command {
+	listCmd.PersistentFlags().BoolVar(&showArchived, "archived", false, "show archived reports")
+
 	cmd.AddCommand(listCmd)
-	cmd.AddCommand(pruneCmd)
+	cmd.AddCommand(archiveCmd)
 	cmd.AddCommand(retrieveCmd)
 	return cmd
 }
