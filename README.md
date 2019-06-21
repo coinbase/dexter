@@ -94,17 +94,18 @@ Investigators will require the following permissions to use Dexter:
 * `GetObject` on the entire bucket
 * `ListBucket` on the entire bucket
 * `PutObject` on `investigations/*`
-* `PutObjectAcl` on `investigation/*`
+* `PutObjectAcl` on `investigations/*`
 
 ##### Admins
 
 Dexter admins should have all the permissions of investigators, as well as the following additional permissions:
 
-* `PutObject` on `investigators/*`
-* `PutObjectAcl` on `investigators/*`
+* `PutObject` on the entire bucket
+* `PutObjectAcl` on the entire bucket
+* `CopyObject` on the entire bucket
 * `DeleteObject` on the entire bucket
 
-This makes it possible for admins to prune old investigations and reports.
+Only Dexter admins can add new users and archive reports.
 
 ## Usage
 
@@ -181,11 +182,11 @@ Provide your password to approve the following investigation:
 Password >
 ```
 
-### Pruning investigations
+### Archiving investigations
 
-The command [`dexter investigation prune`](doc/dexter_investigation_prune.md) is used to delete old investigations.
+The command [`dexter investigation archive`](doc/dexter_investigation_archive.md) is used to rename old investigations so they are no longer visible.
 
-When this command is ran, all past investigations will be downloaded into a new directory called `InvestigationArchive`.
+When this command is ran, all past investigations will be prefixed with an underscore and no longer visible in Dexter.  They are still available in the S3 bucket for audit purposes.
 
 ### Listing reports
 
@@ -213,11 +214,11 @@ The report format is:
 DexterReport-<ID>/<hostname>/<taskname>/...
 ```
 
-### Pruning reports
+### Archiving reports
 
-The command [`dexter report prune`](doc/dexter_report_prune.md) is used to delete old reports.
+The command [`dexter report archive`](doc/dexter_report_archive.md) is used to archive old reports.
 
-No reports will be saved, this should be used with caution.
+The reports will be prefixed with an underscore and no longer visible in Dexter.  They will remain in the S3 bucket for audit purposes.
 
 ## Development
 

@@ -147,3 +147,21 @@ func DeleteS3File(path string) error {
 	})
 	return err
 }
+
+//
+// Move a file in S3
+//
+func MoveS3File(oldpath, newpath string) error {
+	if LocalDemoPath != "" {
+		return os.Rename(filepath.FromSlash(LocalDemoPath+oldpath), filepath.FromSlash(LocalDemoPath+newpath))
+	}
+	_, err := s3.New(session.New()).CopyObject(&s3.CopyObjectInput{
+		Bucket:     S3Bucket(),
+		CopySource: aws.String(oldpath),
+		Key:        aws.String(newpath),
+	})
+	if err != nil {
+		return err
+	}
+	return DeleteS3File(oldpath)
+}

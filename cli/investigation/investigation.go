@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var showArchived bool
+
 var cmd = &cobra.Command{
 	Use:   "investigation [cmd]",
 	Short: "Manage investigations",
@@ -27,12 +29,12 @@ var listCmd = &cobra.Command{
 	Run:   listInvestigations,
 }
 
-var pruneCmd = &cobra.Command{
-	Use:   "prune",
-	Short: "Permanently delete all investigations",
-	Long:  `Download an archive of investigations and empty the investigations bucket`,
+var archiveCmd = &cobra.Command{
+	Use:   "archive",
+	Short: "Hide investigations from Dexter",
+	Long:  `Mark the investigations as archived, removing them from the Dexter cli while preserving them on S3`,
 	Args:  cobra.MaximumNArgs(0),
-	Run:   pruneInvestigations,
+	Run:   archiveInvestigations,
 }
 
 var approveCmd = &cobra.Command{
@@ -44,9 +46,11 @@ var approveCmd = &cobra.Command{
 }
 
 func CommandSuite() *cobra.Command {
+	listCmd.PersistentFlags().BoolVar(&showArchived, "archived", false, "show archived investigations")
+
 	cmd.AddCommand(createCmd)
 	cmd.AddCommand(listCmd)
-	cmd.AddCommand(pruneCmd)
+	cmd.AddCommand(archiveCmd)
 	cmd.AddCommand(approveCmd)
 	return cmd
 }

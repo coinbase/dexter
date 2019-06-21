@@ -2,6 +2,7 @@ package report
 
 import (
 	"os"
+	"path"
 
 	"github.com/coinbase/dexter/engine/helpers"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func pruneReports(cmd *cobra.Command, args []string) {
+func archiveReports(cmd *cobra.Command, args []string) {
 	files, err := helpers.ListS3Path("reports/")
 	if err != nil {
 		color.HiRed("unable to list reports: " + err.Error())
@@ -17,9 +18,11 @@ func pruneReports(cmd *cobra.Command, args []string) {
 	}
 
 	for _, file := range files {
-		err := helpers.DeleteS3File(file)
+		base := path.Base(file)
+		err = helpers.MoveS3File(file, "reports/_"+base)
 		if err != nil {
-			color.HiRed(err.Error())
+			color.HiRed("error moving file for archive: " + err.Error())
+			os.Exit(1)
 		}
 	}
 }

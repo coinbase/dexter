@@ -624,9 +624,24 @@ func InvestigationByIDWithCache(cache []Investigation, uuid string) (Investigati
 }
 
 //
-// Download all investigations currently on S3.
+// Get all investigations, including archived ones
+//
+func AllInvestigations() []Investigation {
+	return getInvestigations(true)
+}
+
+//
+// Get current investigations.
 //
 func CurrentInvestigations() []Investigation {
+	return getInvestigations(false)
+}
+
+//
+// Download all investigations currently on S3.  Accepts a boolean
+// to indicate if archived investigations should be returned as well.
+//
+func getInvestigations(archived bool) []Investigation {
 	knownInvestigations := make(map[string]Investigation)
 
 	investigations, err := helpers.ListS3Path("investigations/")
@@ -635,6 +650,10 @@ func CurrentInvestigations() []Investigation {
 	}
 
 	for _, filename := range investigations {
+		investigationFile := strings.TrimPrefix(filename, "investigations/")
+		if string(investigationFile[0]) == "_" && !archived {
+			continue
+		}
 		data, err := helpers.GetS3File(filename)
 		if err != nil {
 			color.HiRed(err.Error())

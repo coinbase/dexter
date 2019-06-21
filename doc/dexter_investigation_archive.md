@@ -1,19 +1,19 @@
-## dexter investigation approve
+## dexter investigation archive
 
-Sign pending investigations for consensus
+Hide investigations from Dexter
 
 ### Synopsis
 
-Print the details of an investigation and provide a signature for consensus
+Mark the investigations as archived, removing them from the Dexter cli while preserving them on S3
 
 ```
-dexter investigation approve [flags]
+dexter investigation archive [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for approve
+  -h, --help   help for archive
 ```
 
 ### Options inherited from parent commands
